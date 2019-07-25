@@ -7,10 +7,13 @@
 #include <iostream>
 #include<fstream>
 #include<string>
-
+//run these in the fourth year folder 
 //./g_11 > g_11.txt
 // g++ Indeterminacy.cpp -o g_10
 // ./g_10
+// for i in {1..50} ; do ./g_10 ; done (run multiple times)
+//cat ~/file01 ~/file02 ~/file03 ~/fileA ~/fileB ~/fileC > merged-file
+//for i in {1..100} ; do g++ Indeterminacy.cpp -o g_7 ; ./g_7 ; ./g_7 >> test.txt ; done
 
 double indeterminacy(double number, int d_w){
 
@@ -32,7 +35,7 @@ public:
 	double mass,px,py,vx,vy;
 	std::vector<double> attraction(Body other){
 	double G = 6.67428e-11;
-	//double g = indeterminacy(G,11);
+	//double g = indeterminacy(G,7);
     double dx = (other.px-px);
     double dy = (other.py-py);
     double d = sqrt(dx*dx + dy*dy);
@@ -47,7 +50,7 @@ public:
     double fx =cos(theta) * f;
     double fy = sin(theta) * f;
     std::vector<double> farr(2);
-    farr[0] = -fx;
+    farr[0] = -fx; 
     farr[1] = -fy;
     return farr;
         
@@ -56,12 +59,14 @@ public:
 };
 
 std::vector<double> loop(std::vector<Body> & bodies){
-	double timestep = 0.0001 ; // one day
+	double timestep =  3600 ; // one hour
 	double step = 1;
 	double AU = (149.6e6 * 1000.);
 
-	double number_of_steps = 8.64e10;
+	double number_of_steps = 24000; // one thousand days
 	std::vector<double> rlist(number_of_steps);
+	std::vector<double> xlist(number_of_steps);
+	std::vector<double> ylist(number_of_steps);
 	while(step < number_of_steps){
 
 
@@ -69,7 +74,9 @@ std::vector<double> loop(std::vector<Body> & bodies){
     	double y = bodies[0].py/AU;
     	double r = sqrt(x*x + y*y);
 
-		rlist[step]= r;
+		rlist[step] = r;
+		xlist[step] = x;
+		ylist[step] = y;
       
     
         step += 1;
@@ -88,6 +95,8 @@ std::vector<double> loop(std::vector<Body> & bodies){
 	}
 
  return(rlist);
+ return(xlist);
+ return(ylist);
         
 }
 
@@ -116,18 +125,21 @@ int main(int argc, char const *argv[])
     bodies.push_back(earth);
     bodies.push_back(sun);
 
+
+//write output to textfile
+
     FILE * myfile;
 
-    myfile = fopen("mp_timestep_millisec.txt","w");
+    myfile = fopen("g_mp_test.txt","w");
 
     std::vector<double> rlist = loop(bodies);
-    	for(int i = 0; i <rlist.size(); i++){
-            fprintf(myfile, "%d %.16f\n" ,i, rlist[i]);
+    std::vector<double> xlist = loop(bodies);
+    std::vector<double> ylist = loop(bodies);
+    	for(int i = 0; i < rlist.size(); i++){
+            fprintf(myfile, "%d %.16f %.16f %.16f\n" ,i, rlist[i],xlist[i],ylist[i]);
     		//printf("%d %.16f\n" ,i, rlist[i]);
     	}
     fclose(myfile);
 	return 0;
 }
 
-
-//write output to textfile
