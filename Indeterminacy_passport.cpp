@@ -9,7 +9,7 @@
 #include<string>
 //run these in the fourth year folder 
 //./g_11 > g_11.txt
-// g++ Indeterminacy.cpp -o g_10
+// g++ Indeterminacy_passport.cpp -o g_10
 // ./g_10
 // for i in {1..50} ; do ./g_10 ; done (run multiple times)
 //cat ~/file01 ~/file02 ~/file03 ~/fileA ~/fileB ~/fileC > merged-file
@@ -18,7 +18,8 @@
 double indeterminacy(double number, int d_w){
 
 	srand(time(NULL));
-	double a = (1./pow(10.,d_w));
+	double a = 0; 
+	a = (1./pow(10.,d_w));
 	double deviate = rand()/(double)RAND_MAX;
 	double stepper = pow(10.0, d_w);
     return (trunc(stepper * number) / stepper) + a*deviate;
@@ -33,14 +34,12 @@ class Body
 
 public:
 	double mass,px,py,vx,vy;
-	std::vector<double> attraction(Body other){
-	double G = 6.67428e-11;
-	//double g = indeterminacy(G,16);
+	std::vector<double> attraction(double g, Body other){
     double dx = (other.px-px);
     double dy = (other.py-py);
     double d = sqrt(dx*dx + dy*dy);
 	
-	double  f =  G * mass * other.mass / (d*d);
+	double  f =  g * mass * other.mass / (d*d);
 
 	if (d == 0){
 		exit(1);
@@ -59,31 +58,37 @@ public:
 };
 
 std::vector<std::vector<double> > loop(std::vector<Body> & bodies){
-	double timestep =  3600 ; // one hour
+	double timestep =  24*3600 ; // one hour
 	double step = 1;
 	double AU = (149.6e6 * 1000.);
+	double G = 6.67428e-11;
 
-	double number_of_steps = 24000; // one thousand days
+	double number_of_steps = 100; // one thousand days
 	std::vector<double> rlist(number_of_steps);
 	std::vector<double> xlist(number_of_steps);
 	std::vector<double> ylist(number_of_steps);
 	std::vector<double> glist(number_of_steps);
 	while(step < number_of_steps){
 
-
+		double g = 0;
+		g = indeterminacy(G,11);
 		double x = bodies[0].px/AU;
     	double y = bodies[0].py/AU;
     	double r = sqrt(x*x + y*y);
-    	
+
+
+
+
 
 		rlist[step] = r;
 		xlist[step] = x;
 		ylist[step] = y;
+		glist[step] = g;
       
     
         step += 1;
         
-        std::vector<double> force = bodies[1].attraction(bodies[0]);
+        std::vector<double> force = bodies[1].attraction(g,bodies[0]);
         
         bodies[0].vx += force[0] / bodies[0].mass * timestep;
         bodies[0].vy += force[1] / bodies[0].mass * timestep;
@@ -100,6 +105,7 @@ std::vector<std::vector<double> > loop(std::vector<Body> & bodies){
  data.push_back(rlist);
  data.push_back(xlist);
  data.push_back(ylist);
+ data.push_back(glist);
 
  return(data);
 
@@ -145,9 +151,10 @@ int main(int argc, char const *argv[])
     std::vector<double> rlist = data[0];
     std::vector<double> xlist = data[1];
     std::vector<double> ylist = data[2];
+    std::vector<double> glist = data[3];
     	for(int i = 0; i < rlist.size(); i++){
             //fprintf(myfile, "%d %.16f %.16f %.16f\n" ,i, rlist[i], xlist[i], ylist[i]);
-    		printf("%d %.16f %.16f %.16f\n" ,i, rlist[i], xlist[i], ylist[i]);
+    		printf("%d %.16f %.16f %.16f %.16f\n" ,i, rlist[i], xlist[i], ylist[i], glist[i]);
     	}
     //fclose(myfile);
 
