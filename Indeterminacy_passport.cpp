@@ -13,16 +13,16 @@
 // ./g_10
 // for i in {1..50} ; do ./g_10 ; done (run multiple times)
 //cat ~/file01 ~/file02 ~/file03 ~/fileA ~/fileB ~/fileC > merged-file
-//for i in {1..100} ; do g++ Indeterminacy_passport.cpp -o g_7 ; ./g_7 ; ./g_7 >> gmp.txt ; done
+//for i in {1..100} ; do g++ Indeterminacy_passport.cpp -o g_7 ; ./g_7 ; ./g_7 >> g10_hour_1000days_100runs.txt ; done
 
 double indeterminacy(double number, int d_w){
 
-	srand(time(NULL));
-	double a = 0; 
+	double a = 0;
 	a = (1./pow(10.,d_w));
 	double deviate = rand()/(double)RAND_MAX;
 	double stepper = pow(10.0, d_w);
     return (trunc(stepper * number) / stepper) + a*deviate;
+
 
 }
 
@@ -34,12 +34,12 @@ class Body
 
 public:
 	double mass,px,py,vx,vy;
-	std::vector<double> attraction(double g, Body other){
+	std::vector<double> attraction(double gi, Body other){
     double dx = (other.px-px);
     double dy = (other.py-py);
     double d = sqrt(dx*dx + dy*dy);
 	
-	double  f =  g * mass * other.mass / (d*d);
+	double  f =  gi * mass * other.mass / (d*d);
 
 	if (d == 0){
 		exit(1);
@@ -57,13 +57,13 @@ public:
 	
 };
 
-std::vector<std::vector<double> > loop(std::vector<Body> & bodies){
-	double timestep =  24*3600 ; // one hour
-	double step = 1;
+std::vector<std::vector<double> > loop(std::vector<Body> & bodies, double timestep, int number_of_steps, int d_w){
+	//double timestep =  3600 ; // one hour
+	int step = 1;
 	double AU = (149.6e6 * 1000.);
 	double G = 6.67428e-11;
 
-	double number_of_steps = 100; // one thousand days
+	//int number_of_steps = 24000; // one thousand days
 	std::vector<double> rlist(number_of_steps);
 	std::vector<double> xlist(number_of_steps);
 	std::vector<double> ylist(number_of_steps);
@@ -71,7 +71,7 @@ std::vector<std::vector<double> > loop(std::vector<Body> & bodies){
 	while(step < number_of_steps){
 
 		double g = 0;
-		g = indeterminacy(G,11);
+		g = indeterminacy(G, d_w);
 		double x = bodies[0].px/AU;
     	double y = bodies[0].py/AU;
     	double r = sqrt(x*x + y*y);
@@ -107,19 +107,18 @@ std::vector<std::vector<double> > loop(std::vector<Body> & bodies){
  data.push_back(ylist);
  data.push_back(glist);
 
- return(data);
-
-
-
- 
-        
+ return(data);        
 }
-
-
 
 
 int main(int argc, char const *argv[])
 {
+	srand(time(NULL));
+
+	double timestep = atof(argv[1]);
+	int number_of_steps = atoi(argv[2]);
+	int d_w = atoi(argv[3]);
+
 
 	Body sun;
     sun.mass = 1.98892 *  pow(10.,30.);
@@ -147,7 +146,7 @@ int main(int argc, char const *argv[])
 
     //myfile = fopen("g_mp_test1.txt","w");
 
-    std::vector<std::vector<double> > data = loop(bodies);
+    std::vector<std::vector<double> > data = loop(bodies, timestep, number_of_steps, d_w);
     std::vector<double> rlist = data[0];
     std::vector<double> xlist = data[1];
     std::vector<double> ylist = data[2];
