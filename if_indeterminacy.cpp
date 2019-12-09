@@ -10,7 +10,7 @@
 //run these in the fourth year folder 
 //./g_if 86400 10000 9 > g9_day_tenthdays_if1.txt
 // g++ if_indeterminacy.cpp -o g_if
-// ./g_if 86400 100 6
+// ./g_if 86400 10001 11
 // for i in {1..1} ; do ./g_if 86400 200000000 12 ; ./g_if 86400 200000000 12 >> g12_day_2hmildays_if1000.txt ; done (run multiple times)
 //cat ~/file01 ~/file02 ~/file03 ~/fileA ~/fileB ~/fileC > merged-file
 //for i in {1..100} ; do g++ Indeterminacy_passport.cpp -o g_7 ; ./g_7 3600 24000 16; ./g_7 >> g16_hour_1000days_100runs.txt ; done
@@ -62,13 +62,14 @@ std::vector<std::vector<double> > loop(std::vector<Body> & bodies, double timest
 	int step = 1;
 	double AU = (149.6e6 * 1000.);
 	double G = 6.67428e-11;
-
+    
 	//int number_of_steps = 24000; // one thousand days
-	std::vector<double> rlist(number_of_steps);
-	std::vector<double> xlist(number_of_steps);
-	std::vector<double> ylist(number_of_steps);
-	std::vector<double> glist(number_of_steps);
+	std::vector<double> rlist(number_of_steps/1000);
+	std::vector<double> xlist(number_of_steps/1000);
+	std::vector<double> ylist(number_of_steps/1000);
+	std::vector<double> glist(number_of_steps/1000);
 	while(step < number_of_steps){
+        
 
 		double g = 0;
 		g = indeterminacy(G, d_w);
@@ -78,12 +79,14 @@ std::vector<std::vector<double> > loop(std::vector<Body> & bodies, double timest
 
 
 
+        if(step % 1000 == 0){
 
+		rlist[step/1000] = r;
+		xlist[step/1000] = x;
+		ylist[step/1000] = y;
+		glist[step/1000] = g;
 
-		rlist[step] = r;
-		xlist[step] = x;
-		ylist[step] = y;
-		glist[step] = g;
+    }
       
     
         step += 1;
@@ -99,7 +102,7 @@ std::vector<std::vector<double> > loop(std::vector<Body> & bodies, double timest
       
 
 
-	}
+	} 
 
  std::vector<std::vector<double> > data;
  data.push_back(rlist);
@@ -152,11 +155,11 @@ int main(int argc, char const *argv[])
     std::vector<double> ylist = data[2];
     std::vector<double> glist = data[3];
     	for (int i = 0; i < rlist.size(); i++) {
-            if (i % 1000 == 0) { 
-               printf("%d %.16f %.16f %.16f %.20f\n" ,i, rl ist[i], xlist[i], ylist[i], glist[i]);
+            //if (i % 1000 == 0) { 
+               printf("%d %.16f %.16f %.16f %.20f\n" ,i, rlist[i], xlist[i], ylist[i], glist[i]);
             //fprintf(myfile, "%d %.16f %.16f %.16f\n" ,i, rlist[i], xlist[i], ylist[i]);
     		
-    	 } }
+    	 } 
     //fclose(myfile);
 
 	return 0;
